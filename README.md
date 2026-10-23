@@ -13,6 +13,7 @@ Private GKE cluster with Workload Identity, shielded nodes, release channel and 
 - Horizontal pod autoscaling and HTTP load balancing addons on.
 - `deletion_protection = true` when `context.environment` is `prod`.
 - Weekly maintenance window Saturday and Sunday 02:00-08:00 UTC by default (GKE requires at least 48 hours of availability per 32 days).
+- `context.extra_tags` keys and values are normalised to valid GCP label syntax (lowercase, `[^a-z0-9_-]` → `-`, 63 chars); `labels` are applied verbatim and win.
 
 ## Provider requirement
 
@@ -21,19 +22,18 @@ The upstream module requires `google >= 7.39.0`, so this module constrains the p
 ## Usage
 
 ```hcl
-module "this" {
-  source = "git::https://github.com/Olensys/terraform-google-gke-cluster.git?ref=v1.0.0"
+module "naming" {
+  source  = "git::https://github.com/Olensys/terraform-null-naming.git?ref=v1.0.1"
+  context = var.context
+}
 
-  name       = "example"
+module "this" {
+  source = "git::https://github.com/Olensys/terraform-google-gke-cluster.git?ref=v1.1.0"
+
+  name       = module.naming.name
   project_id = "my-project"
   region     = "us-central1"
-  context = {
-    organization = "olensys"
-    environment  = "dev"
-    application  = "example"
-    owner        = "platform"
-    cost_center  = "eng"
-  }
+  context = var.context
 
   network = {
     name                = "my-network"
@@ -45,6 +45,7 @@ module "this" {
   node_pools = {
     default = { machine_type = "e2-standard-4", min_count = 1, max_count = 3 }
   }
+  labels  = module.naming.labels
 }
 ```
 
