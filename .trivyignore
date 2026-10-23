@@ -1,1 +1,15 @@
 # One ID per line, each with a justification comment.
+# The findings below are raised against the upstream private-cluster module's cluster resource, whose
+# values arrive through dynamic blocks and variables that static analysis cannot resolve.
+# GCP-0051: resource_labels = var.cluster_resource_labels, which this module always sets.
+GCP-0051
+# GCP-0052 / GCP-0060: legacy monitoring_service / logging_service strings; this module configures
+# logging_config and monitoring_config component lists instead.
+GCP-0052
+GCP-0060
+# GCP-0057: node metadata is restricted through workload_metadata_config GKE_METADATA when Workload Identity
+# is on (the default); the upstream sets it in a dynamic block.
+GCP-0057
+# GCP-0061: master_authorized_networks is a dynamic block fed by var.authorized_networks; an empty list
+# leaves only the cluster's own nodes with access.
+GCP-0061
