@@ -1,6 +1,6 @@
-# __NAME__
+# terraform-google-gke-cluster
 
-__DESCRIPTION__
+Private GKE cluster with Workload Identity, shielded nodes, release channel and node pools from a map
 
 ## Opinions
 
@@ -10,7 +10,7 @@ __DESCRIPTION__
 
 ```hcl
 module "this" {
-  source = "git::https://github.com/Olensys/__NAME__.git?ref=v1.0.0"
+  source = "git::https://github.com/Olensys/terraform-google-gke-cluster.git?ref=v1.0.0"
 
   name = "example"
   context = {

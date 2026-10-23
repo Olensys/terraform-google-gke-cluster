@@ -1,10 +1,10 @@
-name: __NAME__
-cloud: __CLOUD__          # aws | google | common
+name: terraform-google-gke-cluster
+cloud: google          # aws | google | common
 tier: capability          # primitive | capability | blueprint
 maturity: experimental    # experimental | stable | deprecated
-description: __DESCRIPTION__
+description: Private GKE cluster with Workload Identity, shielded nodes, release channel and node pools from a map
 owners: [platform]
 upstream: null            # e.g. "terraform-aws-modules/s3-bucket/aws 5.17.0"
 pairs_with: null          # e.g. "terraform-google-gcs-bucket"
-registry_name: __NAME__
+registry_name: terraform-google-gke-cluster
 deprecated: null          # { removal: YYYY-MM-DD, replacement: <repo> }
