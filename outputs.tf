@@ -50,6 +50,11 @@ output "private_cluster_config" {
   value       = var.create ? local.private_cluster_config : null
 }
 
+output "node_metadata" {
+  description = "Node metadata mode passed to the upstream module (GKE_METADATA with Workload Identity, else UNSPECIFIED). Null when create is false."
+  value       = var.create ? local.node_metadata : null
+}
+
 output "maintenance_config" {
   description = "Maintenance window passed to the upstream module. Null when create is false."
   value = var.create ? {

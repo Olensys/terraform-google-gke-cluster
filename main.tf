@@ -3,6 +3,9 @@ locals {
 
   deletion_protection = var.context.environment == "prod"
 
+  # GKE_METADATA requires Workload Identity.
+  node_metadata = var.enable_workload_identity ? "GKE_METADATA" : "UNSPECIFIED"
+
   workload_identity_pool = var.enable_workload_identity ? "${var.project_id}.svc.id.goog" : null
 
   # Upstream takes a list of maps and treats every value as a string.
@@ -35,6 +38,9 @@ locals {
     private_nodes    = true
     private_endpoint = false
     master_cidr      = var.master_cidr
+
+    public_cidrs_access_enabled = false
+    authorized_networks         = var.authorized_networks
   }
 }
 
@@ -57,7 +63,10 @@ module "this" {
   enable_private_endpoint = local.private_cluster_config.private_endpoint
   master_ipv4_cidr_block  = var.master_cidr
 
-  master_authorized_networks = var.authorized_networks
+  master_authorized_networks = local.private_cluster_config.authorized_networks
+
+  # Always render master_authorized_networks_config; without this an empty list leaves the endpoint open.
+  gcp_public_cidrs_access_enabled = local.private_cluster_config.public_cidrs_access_enabled
 
   # DNS-based endpoint stays closed to external traffic (the provider default, set explicitly).
   dns_allow_external_traffic = false
@@ -68,6 +77,7 @@ module "this" {
   enable_shielded_nodes = true
 
   identity_namespace = var.enable_workload_identity ? "enabled" : null
+  node_metadata      = local.node_metadata
 
   remove_default_node_pool = true
   initial_node_count       = 1

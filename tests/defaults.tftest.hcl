@@ -82,6 +82,59 @@ run "test_workload_identity_off" {
     condition     = output.workload_identity_pool == null
     error_message = "No pool when Workload Identity is disabled."
   }
+
+  assert {
+    condition     = output.node_metadata == "UNSPECIFIED"
+    error_message = "Node metadata must not be GKE_METADATA without Workload Identity."
+  }
+}
+
+run "test_authorized_networks_wired" {
+  command = plan
+
+  # SMOKE: asserts the values handed to upstream; the rendered master_authorized_networks_config is proven by
+  # complete.tftest.hcl.
+  variables {
+    authorized_networks = [{ cidr_block = "203.0.113.0/24", display_name = "office" }]
+  }
+
+  assert {
+    condition = (
+      output.private_cluster_config.public_cidrs_access_enabled == false
+      && length(output.private_cluster_config.authorized_networks) == 1
+      && output.private_cluster_config.authorized_networks[0].cidr_block == "203.0.113.0/24"
+    )
+    error_message = "Authorized networks must be passed and public CIDR access disabled."
+  }
+}
+
+run "test_authorized_networks_empty_still_closed" {
+  command = plan
+
+  assert {
+    condition     = output.private_cluster_config.public_cidrs_access_enabled == false && length(output.private_cluster_config.authorized_networks) == 0
+    error_message = "Empty authorized_networks must still render a closed authorized-networks block."
+  }
+}
+
+run "test_node_pools_empty_rejected" {
+  command = plan
+
+  variables {
+    node_pools = {}
+  }
+
+  expect_failures = [var.node_pools]
+}
+
+run "test_name_must_start_with_letter" {
+  command = plan
+
+  variables {
+    name = "1bad"
+  }
+
+  expect_failures = [var.name]
 }
 
 run "test_release_channel_validation" {
@@ -183,11 +236,11 @@ run "test_maintenance_window_default" {
 
   assert {
     condition = (
-      output.maintenance_config.start_time == "2026-01-04T02:00:00Z"
-      && output.maintenance_config.end_time == "2026-01-04T06:00:00Z"
-      && output.maintenance_config.recurrence == "FREQ=WEEKLY;BYDAY=SU"
+      output.maintenance_config.start_time == "2026-01-03T02:00:00Z"
+      && output.maintenance_config.end_time == "2026-01-03T08:00:00Z"
+      && output.maintenance_config.recurrence == "FREQ=WEEKLY;BYDAY=SA,SU"
     )
-    error_message = "Default maintenance window is weekly Sunday 02:00-06:00 UTC."
+    error_message = "Default maintenance window is weekly Saturday and Sunday 02:00-08:00 UTC."
   }
 }
 
@@ -214,7 +267,7 @@ run "test_create_false_plans_nothing" {
       output.endpoint == null, output.ca_certificate == null,
       output.workload_identity_pool == null, output.node_pool_names == null,
       output.labels == null, output.node_pools_config == null,
-      output.private_cluster_config == null, output.maintenance_config == null,
+      output.private_cluster_config == null, output.maintenance_config == null, output.node_metadata == null,
       output.deletion_protection == null,
     ])
     error_message = "Every output must be null when create is false."

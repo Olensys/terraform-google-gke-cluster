@@ -1,7 +1,7 @@
 # One ID per line, each with a justification comment.
 # The findings below are raised against the upstream private-cluster module's cluster resource, whose
 # values arrive through dynamic blocks and variables that static analysis cannot resolve.
-# GCP-0051: resource_labels = var.cluster_resource_labels, which this module always sets.
+# GCP-0051: resource_labels = var.cluster_resource_labels; which labels apply is the caller's choice (context.extra_tags and labels).
 GCP-0051
 # GCP-0052 / GCP-0060: legacy monitoring_service / logging_service strings; this module configures
 # logging_config and monitoring_config component lists instead.

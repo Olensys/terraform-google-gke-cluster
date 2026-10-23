@@ -1,9 +1,9 @@
 variable "name" {
-  description = "Cluster name. Lowercase letters, digits and hyphens, at most 40 characters (the GKE limit)."
+  description = "Cluster name. Starts with a letter, lowercase letters, digits and hyphens, ends with a letter or digit, at most 40 characters (the GKE limit)."
   type        = string
   validation {
-    condition     = can(regex("^[a-z0-9-]{1,40}$", var.name))
-    error_message = "name must match ^[a-z0-9-]{1,40}$."
+    condition     = can(regex("^[a-z]([-a-z0-9]{0,38}[a-z0-9])?$", var.name))
+    error_message = "name must match ^[a-z]([-a-z0-9]{0,38}[a-z0-9])?$ (at most 40 characters)."
   }
 }
 
@@ -61,7 +61,7 @@ variable "master_cidr" {
 }
 
 variable "authorized_networks" {
-  description = "CIDR blocks allowed to reach the public control plane endpoint. Empty means only the cluster's own nodes."
+  description = "CIDR blocks allowed to reach the public control plane endpoint. Empty means no external access to the public endpoint; add CIDRs to allow."
   type = list(object({
     cidr_block   = string
     display_name = string
@@ -94,7 +94,10 @@ variable "node_pools" {
       effect = string
     })), [])
   }))
-  default = {}
+  validation {
+    condition     = length(var.node_pools) > 0
+    error_message = "node_pools must define at least one pool because the default node pool is removed."
+  }
   validation {
     condition     = alltrue([for p in var.node_pools : p.min_count >= 0 && p.min_count <= p.max_count])
     error_message = "Each node pool needs 0 <= min_count <= max_count."
@@ -112,16 +115,16 @@ variable "enable_workload_identity" {
 }
 
 variable "maintenance_window" {
-  description = "Recurring maintenance window as RFC3339 start and end timestamps plus an RFC5545 recurrence rule. Default: weekly, Sunday 02:00-06:00 UTC."
+  description = "Recurring maintenance window as RFC3339 start and end timestamps plus an RFC5545 recurrence rule. Default: weekly, Saturday and Sunday 02:00-08:00 UTC (GKE requires at least 48 hours of availability per 32 days)."
   type = object({
     start_time = string
     end_time   = string
     recurrence = string
   })
   default = {
-    start_time = "2026-01-04T02:00:00Z"
-    end_time   = "2026-01-04T06:00:00Z"
-    recurrence = "FREQ=WEEKLY;BYDAY=SU"
+    start_time = "2026-01-03T02:00:00Z"
+    end_time   = "2026-01-03T08:00:00Z"
+    recurrence = "FREQ=WEEKLY;BYDAY=SA,SU"
   }
 }
 
