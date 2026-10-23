@@ -10,6 +10,3 @@ GCP-0060
 # GCP-0057: node metadata is restricted through workload_metadata_config GKE_METADATA when Workload Identity
 # is on (the default); the upstream sets it in a dynamic block.
 GCP-0057
-# GCP-0061: master_authorized_networks is a dynamic block fed by var.authorized_networks; an empty list
-# leaves only the cluster's own nodes with access.
-GCP-0061
