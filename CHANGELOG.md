@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.2](https://github.com/Olensys/terraform-google-gke-cluster/compare/v1.1.1...v1.1.2) (2026-10-24)
+
+
+### Bug Fixes
+
+* **examples:** unique application slug so concurrent integration runs do not collide ([#3](https://github.com/Olensys/terraform-google-gke-cluster/issues/3)) ([41725f3](https://github.com/Olensys/terraform-google-gke-cluster/commit/41725f34ac9c2c33234683fa0bcaa116dc7aa2d1))
+
 ## [1.1.1](https://github.com/Olensys/terraform-google-gke-cluster/compare/v1.1.0...v1.1.1) (2026-10-24)
 
 
