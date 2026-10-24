@@ -57,9 +57,11 @@ module "this" {
 
   node_pools = {
     default = {
-      machine_type = "e2-standard-4"
+      machine_type = "e2-small"
       min_count    = 1
-      max_count    = 3
+      max_count    = 1
+      disk_size_gb = 20
+      spot         = true
     }
   }
 }
