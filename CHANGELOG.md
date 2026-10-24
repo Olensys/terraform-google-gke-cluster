@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.1](https://github.com/Olensys/terraform-google-gke-cluster/compare/v1.1.0...v1.1.1) (2026-10-24)
+
+
+### Bug Fixes
+
+* **examples:** use the smallest shapes for the integration apply ([998920e](https://github.com/Olensys/terraform-google-gke-cluster/commit/998920ef279223640d2cc793d8072f4540ebde07))
+* run integration on change and weekly instead of nightly ([4f83622](https://github.com/Olensys/terraform-google-gke-cluster/commit/4f83622b0859996e586da7d344a6f374e5bb5129))
+
 ## 1.1.0
 
 ### Fixes
