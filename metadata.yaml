@@ -1,7 +1,7 @@
 name: terraform-google-gke-cluster
 cloud: google          # aws | google | common
 tier: capability          # primitive | capability | blueprint
-maturity: experimental    # experimental | stable | deprecated
+maturity: stable          # experimental | stable | deprecated
 description: Private GKE cluster with Workload Identity, shielded nodes, release channel and node pools from a map
 owners: [platform]
 upstream: "terraform-google-modules/kubernetes-engine/google//modules/private-cluster 46.0.0"
