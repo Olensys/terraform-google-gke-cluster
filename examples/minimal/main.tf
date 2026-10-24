@@ -37,13 +37,13 @@ variable "services_range_name" {
 module "this" {
   source = "../../"
 
-  name       = "example"
+  name       = "olensys-test-gke"
   project_id = var.project_id
   region     = "us-central1"
   context = {
     organization = "olensys"
     environment  = "test"
-    application  = "example"
+    application  = "gke"
     owner        = "platform"
     cost_center  = "eng"
   }
