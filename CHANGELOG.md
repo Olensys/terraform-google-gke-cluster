@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/Olensys/terraform-google-gke-cluster/compare/v1.1.2...v1.2.0) (2026-11-14)
+
+
+### Features
+
+* adoption inputs datapath_provider, remove_default_node_pool, deletion_protection and per-pool enable_secure_boot ([#6](https://github.com/Olensys/terraform-google-gke-cluster/issues/6)) ([2f74c40](https://github.com/Olensys/terraform-google-gke-cluster/commit/2f74c40a44c01dc9447a4f17d7dc630f46c8178d))
+
 ## [1.1.2](https://github.com/Olensys/terraform-google-gke-cluster/compare/v1.1.1...v1.1.2) (2026-10-24)
 
 
