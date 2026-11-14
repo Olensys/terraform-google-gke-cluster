@@ -176,6 +176,112 @@ run "test_deletion_protection_off_outside_prod" {
   }
 }
 
+run "test_deletion_protection_override_on_outside_prod" {
+  command = plan
+
+  variables {
+    deletion_protection = true
+  }
+
+  assert {
+    condition     = output.deletion_protection == true
+    error_message = "deletion_protection = true must override the environment rule."
+  }
+}
+
+run "test_deletion_protection_override_off_in_prod" {
+  command = plan
+
+  variables {
+    deletion_protection = false
+    context = {
+      organization = "olensys"
+      environment  = "prod"
+      application  = "example"
+      owner        = "platform"
+      cost_center  = "eng"
+    }
+  }
+
+  assert {
+    condition     = output.deletion_protection == false
+    error_message = "deletion_protection = false must override the environment rule."
+  }
+}
+
+run "test_datapath_provider_default" {
+  command = plan
+
+  assert {
+    condition     = output.datapath_provider == "ADVANCED_DATAPATH"
+    error_message = "Dataplane V2 (ADVANCED_DATAPATH) must be the default datapath."
+  }
+}
+
+run "test_datapath_provider_override" {
+  command = plan
+
+  variables {
+    datapath_provider = "LEGACY_DATAPATH"
+  }
+
+  assert {
+    condition     = output.datapath_provider == "LEGACY_DATAPATH"
+    error_message = "datapath_provider must be passed through unchanged."
+  }
+}
+
+run "test_datapath_provider_validation" {
+  command = plan
+
+  variables {
+    datapath_provider = "EBPF"
+  }
+
+  expect_failures = [var.datapath_provider]
+}
+
+run "test_remove_default_node_pool_default" {
+  command = plan
+
+  assert {
+    condition     = output.remove_default_node_pool == true
+    error_message = "The default node pool must be removed by default."
+  }
+}
+
+run "test_remove_default_node_pool_override" {
+  command = plan
+
+  variables {
+    remove_default_node_pool = false
+  }
+
+  assert {
+    condition     = output.remove_default_node_pool == false
+    error_message = "remove_default_node_pool must be passed through unchanged."
+  }
+}
+
+run "test_secure_boot_off_per_pool" {
+  command = plan
+
+  variables {
+    node_pools = {
+      default = {}
+      legacy  = { enable_secure_boot = false }
+    }
+  }
+
+  assert {
+    condition = (
+      [for p in output.node_pools_config : p if p.name == "default"][0].enable_secure_boot == "true"
+      && [for p in output.node_pools_config : p if p.name == "legacy"][0].enable_secure_boot == "false"
+    )
+    error_message = "Secure Boot stays on for pools that do not opt out and is off only for the pool that sets enable_secure_boot = false."
+  }
+}
+
 run "test_node_pools_from_map" {
   command = plan
 
@@ -217,7 +323,7 @@ run "test_node_pools_from_map" {
       && [for p in output.node_pools_config : p if p.name == "gpu"][0].auto_upgrade == "true"
       && [for p in output.node_pools_config : p if p.name == "gpu"][0].auto_repair == "true"
     )
-    error_message = "Spot honoured; secure boot, COS_CONTAINERD, auto upgrade and repair hardcoded."
+    error_message = "Spot honoured; secure boot on by default, COS_CONTAINERD, auto upgrade and repair hardcoded."
   }
 }
 
@@ -268,7 +374,7 @@ run "test_create_false_plans_nothing" {
       output.workload_identity_pool == null, output.node_pool_names == null,
       output.labels == null, output.node_pools_config == null,
       output.private_cluster_config == null, output.maintenance_config == null, output.node_metadata == null,
-      output.deletion_protection == null,
+      output.deletion_protection == null, output.datapath_provider == null, output.remove_default_node_pool == null,
     ])
     error_message = "Every output must be null when create is false."
   }

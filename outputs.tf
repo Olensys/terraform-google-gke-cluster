@@ -64,7 +64,17 @@ output "maintenance_config" {
   } : null
 }
 
+output "datapath_provider" {
+  description = "Datapath provider passed to the upstream module. Null when create is false."
+  value       = var.create ? var.datapath_provider : null
+}
+
+output "remove_default_node_pool" {
+  description = "Whether the default node pool is removed, as passed to the upstream module. Null when create is false."
+  value       = var.create ? var.remove_default_node_pool : null
+}
+
 output "deletion_protection" {
-  description = "Whether Terraform is prevented from destroying the cluster (true in prod). Null when create is false."
+  description = "Whether Terraform is prevented from destroying the cluster (on in prod unless deletion_protection overrides it). Null when create is false."
   value       = var.create ? local.deletion_protection : null
 }

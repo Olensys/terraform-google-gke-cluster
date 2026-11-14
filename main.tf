@@ -3,7 +3,8 @@ locals {
   substr(replace(lower(k), "/[^a-z0-9_-]/", "-"), 0, 63) => substr(replace(lower(v), "/[^a-z0-9_-]/", "-"), 0, 63) }
   labels = merge(local.extra_labels, var.labels)
 
-  deletion_protection = var.context.environment == "prod"
+  # Null follows the environment rule (on in prod); true or false overrides it.
+  deletion_protection = var.deletion_protection == null ? var.context.environment == "prod" : var.deletion_protection
 
   # GKE_METADATA requires Workload Identity.
   node_metadata = var.enable_workload_identity ? "GKE_METADATA" : "UNSPECIFIED"
@@ -22,7 +23,7 @@ locals {
       auto_upgrade       = "true"
       auto_repair        = "true"
       image_type         = "COS_CONTAINERD"
-      enable_secure_boot = "true"
+      enable_secure_boot = tostring(p.enable_secure_boot)
     }
   ]
 
@@ -74,14 +75,14 @@ module "this" {
   dns_allow_external_traffic = false
 
   release_channel       = var.release_channel
-  datapath_provider     = "ADVANCED_DATAPATH"
+  datapath_provider     = var.datapath_provider
   network_policy        = false
   enable_shielded_nodes = true
 
   identity_namespace = var.enable_workload_identity ? "enabled" : null
   node_metadata      = local.node_metadata
 
-  remove_default_node_pool = true
+  remove_default_node_pool = var.remove_default_node_pool
   initial_node_count       = 1
 
   node_pools        = local.node_pools_config

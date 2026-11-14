@@ -79,15 +79,26 @@ variable "release_channel" {
   }
 }
 
+variable "datapath_provider" {
+  description = "Cluster datapath: ADVANCED_DATAPATH (Dataplane V2, the default), LEGACY_DATAPATH or DATAPATH_PROVIDER_UNSPECIFIED (both select the IPTables-based kube-proxy). Changing it forces cluster replacement, so match the existing cluster when adopting one by import."
+  type        = string
+  default     = "ADVANCED_DATAPATH"
+  validation {
+    condition     = contains(["ADVANCED_DATAPATH", "LEGACY_DATAPATH", "DATAPATH_PROVIDER_UNSPECIFIED"], var.datapath_provider)
+    error_message = "datapath_provider must be one of ADVANCED_DATAPATH, LEGACY_DATAPATH, DATAPATH_PROVIDER_UNSPECIFIED."
+  }
+}
+
 variable "node_pools" {
-  description = "Node pools keyed by pool name. Autoscaling between min_count and max_count per zone; spot selects Spot VMs."
+  description = "Node pools keyed by pool name. Autoscaling between min_count and max_count per zone; spot selects Spot VMs. Secure Boot is on per pool unless enable_secure_boot is set false for that pool."
   type = map(object({
-    machine_type = optional(string, "e2-standard-4")
-    min_count    = optional(number, 1)
-    max_count    = optional(number, 5)
-    disk_size_gb = optional(number, 100)
-    spot         = optional(bool, false)
-    labels       = optional(map(string), {})
+    machine_type       = optional(string, "e2-standard-4")
+    min_count          = optional(number, 1)
+    max_count          = optional(number, 5)
+    disk_size_gb       = optional(number, 100)
+    spot               = optional(bool, false)
+    enable_secure_boot = optional(bool, true)
+    labels             = optional(map(string), {})
     taints = optional(list(object({
       key    = string
       value  = string
@@ -108,6 +119,12 @@ variable "node_pools" {
   }
 }
 
+variable "remove_default_node_pool" {
+  description = "Remove the default node pool GKE creates with the cluster so that all capacity comes from node_pools. Set false only to adopt a cluster that still has its default pool."
+  type        = bool
+  default     = true
+}
+
 variable "enable_workload_identity" {
   description = "Enable GKE Workload Identity with the project pool <project_id>.svc.id.goog."
   type        = bool
@@ -126,6 +143,13 @@ variable "maintenance_window" {
     end_time   = "2026-01-03T08:00:00Z"
     recurrence = "FREQ=WEEKLY;BYDAY=SA,SU"
   }
+}
+
+variable "deletion_protection" {
+  description = "Whether Terraform may destroy the cluster. Null (the default) turns it on when context.environment is prod and off otherwise; true or false overrides that rule."
+  type        = bool
+  default     = null
+  nullable    = true
 }
 
 variable "labels" {
